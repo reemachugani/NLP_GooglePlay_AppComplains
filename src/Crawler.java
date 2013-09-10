@@ -23,7 +23,7 @@ public class Crawler{
     public void crawl() throws IOException{
 
         try{
-            while (pageToCrawl <= 70){
+            while (pageToCrawl <= 160){
                 String urlParameters = "reviewType=0&pageNum="+pageToCrawl+"&id="+packageName+"&reviewSortOrder=2&xhr=1";
                 URL url = new URL(pageUrl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
