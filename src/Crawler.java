@@ -21,14 +21,6 @@ public class Crawler{
 
 
     public void crawl() throws IOException{
-//        BufferedReader input = new BufferedReader(new FileReader(file));
-
-//        Map<String, String> postParam = new HashMap<String, String>();
-//        postParam.put("reviewType", "0");
-//        postParam.put("pageNum", pagesToCrawl+"");
-//        postParam.put("id", packageName);
-//        postParam.put("reviewSortOrder", "2");
-//        postParam.put("xhr", "1");
 
         try{
 
@@ -65,7 +57,6 @@ public class Crawler{
 
 
             if(pageUrl != null){
-//                Document doc = Jsoup.connect(pageUrl).timeout(10000).data(postParam).post();
                 Document doc = Jsoup.parse(htmlText);
 
                 Elements reviews = doc.getElementsByClass("single-review");
@@ -88,7 +79,6 @@ public class Crawler{
 
                     reviewList.add(revObj);
                 }
-
             }
         }catch(IOException ex){
             ex.printStackTrace();
