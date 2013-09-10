@@ -15,7 +15,7 @@ public class Crawler{
 
     public static ArrayList<Review> reviewList = new ArrayList<Review>();
     public static int docIDCounter = 0;
-    public static int pagesToCrawl = 50;
+    public static int pageToCrawl = 1;
     public static String packageName = "com.whatsapp";
     public static String pageUrl = "https://play.google.com/store/getreviews";
 
@@ -23,40 +23,38 @@ public class Crawler{
     public void crawl() throws IOException{
 
         try{
+            while (pageToCrawl <= 70){
+                String urlParameters = "reviewType=0&pageNum="+pageToCrawl+"&id="+packageName+"&reviewSortOrder=2&xhr=1";
+                URL url = new URL(pageUrl);
+                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
-            String urlParameters = "reviewType=0&pageNum="+pagesToCrawl+"&id="+packageName+"&reviewSortOrder=2&xhr=1";
-            URL url = new URL(pageUrl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                conn.setDoOutput(true);
 
-            conn.setDoOutput(true);
+                OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
 
-            OutputStreamWriter writer = new OutputStreamWriter(conn.getOutputStream());
+                writer.write(urlParameters);
+                writer.flush();
 
-            writer.write(urlParameters);
-            writer.flush();
+                String line;
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 
-            String line;
-            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                int i=0;
 
-            int i=0;
+                while ((line = reader.readLine()) != null) {
+                    ++i;
+                    if(i==3)
+                        break;
+                }
 
-            while ((line = reader.readLine()) != null) {
-                ++i;
-                if(i==3)
-                    break;
-            }
+                int startIdx = line.indexOf('1')+3;
+                int endIdx = line.lastIndexOf(',')-1;
 
-            int startIdx = line.indexOf('1')+3;
-            int endIdx = line.lastIndexOf(',')-1;
+                line = line.substring(startIdx, endIdx).trim();
 
-            line = line.substring(startIdx, endIdx).trim();
+                String json = "{\"foo\" : \"" + line + "\" }";
+                Map<String, String> map = new Gson().fromJson(json, new TypeToken<Map<String, String>>() {}.getType());
+                String htmlText = map.get("foo");
 
-            String json = "{\"foo\" : \"" + line + "\" }";
-            Map<String, String> map = new Gson().fromJson(json, new TypeToken<Map<String, String>>() {}.getType());
-            String htmlText = map.get("foo");
-
-
-            if(pageUrl != null){
                 Document doc = Jsoup.parse(htmlText);
 
                 Elements reviews = doc.getElementsByClass("single-review");
@@ -79,6 +77,7 @@ public class Crawler{
 
                     reviewList.add(revObj);
                 }
+                pageToCrawl++;
             }
         }catch(IOException ex){
             ex.printStackTrace();
