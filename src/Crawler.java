@@ -23,7 +23,7 @@ public class Crawler{
     public void crawl() throws IOException{
 
         try{
-            while (pageToCrawl <= 160){
+            while (pageToCrawl <= 224){
                 String urlParameters = "reviewType=0&pageNum="+pageToCrawl+"&id="+packageName+"&reviewSortOrder=2&xhr=1";
                 URL url = new URL(pageUrl);
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -45,6 +45,7 @@ public class Crawler{
                     if(i==3)
                         break;
                 }
+                System.out.println(pageToCrawl);
 
                 int startIdx = line.indexOf('1')+3;
                 int endIdx = line.lastIndexOf(',')-1;
@@ -62,9 +63,19 @@ public class Crawler{
                     Review revObj = new Review();
                     revObj.docID = ++docIDCounter;
 
+                    Element reviewDate = singleReview.getElementsByClass("review-date").first();
+                    String dateText = reviewDate.text();
+                    revObj.date = dateText;
+
+                    revObj.source = pageUrl;
+
                     Element reviewBody = singleReview.getElementsByClass("review-body").first();
+                    String reviewTitle = reviewBody.getElementsByClass("review-title").first().text();
+                    revObj.title = reviewTitle;
+
+                    int trimLast = " Full Review".length();
                     String reviewText = reviewBody.text();
-                    revObj.review = reviewText;
+                    revObj.text = reviewText.substring(reviewTitle.length(), reviewText.length()-trimLast);
 
                     String reviewRating = singleReview.getElementsByClass("current-rating").first().attr("style");
                     int len = reviewRating.length();
